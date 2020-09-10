@@ -1,0 +1,74 @@
+"""
+Secure Shell (SSH) Transport Layer Protocol
+
+Source: T. Ylonen
+"RFC: 4253 - The Secure Shell (SSH) Transport Layer Protocol"
+January 2006
+
+SSH Key Exchange Protocol Diagram (RFC 4253, p. 17-p. 21)
+1. Client -> Server : Algorithm Packets
+2. *Client -> Server : Guess Attempt
+3. Server -> Client : Algorithm Packets
+4. *Server -> Client : Guess Attempt
+5. Client -> Server : Key Exchange Request
+6. Server -> Client : Key Exchange
+
+from sa.secalgo import *
+configure(verify_returns = 'bool')
+configure(benchmark = True)
+
+#Message Numbers
+SSH_MSG_KEXINIT = 20
+
+
+# If there is no guess attempt or the guess attempt is wrong, use this method to iterate through each namelist containing protocols
+# The first parameter SHOULD always be client's list. The second parameter SHOULD always be server's list
+# This method compares the CLIENTLIST to the SERVERLIST! NOT the other way around!
+
+def iterate_protocol(client_list, server_list):
+        for protocol_client in client_list:
+                for protocol_server in server_list:
+                        if protocol_client == ptotocol_server :
+                                return protocol_client
+        return -1
+        
+ 
+#Here, the client and server basically does the same thing. After they both exchange protocol namelists, they start iterating through the namelists. The whole process ends when both server and client has a series of protocol to use        
+class ssh_client(process):
+        def setup(kex, server_host_key, encryption_ctos, encryption_stoc, mac_ctos, compression_ctos, conpression_stoc, languages_ctos, language_stoc, guess):
+                pass
+        
+        def run():
+                cookie = Keygen('random', 16)
+                client_list = (kex, server_host_key, encryption_ctos, encryption_stoc, mac_ctos, compression_ctos, conpression_stoc, languages_ctos, language_stoc)
+                send((SSH_MSG_KEXINIT, cookie, client_list, guess, 0), to = server)
+                
+               #To determine if a guess attempt should be sent. NOT IMPLEMENTED YET#
+               #if guess == True:
+                        #client_guess()        
+
+                await(some(received((SSH_MSG_KEXINIT, server_cookie, server_lists, server_guess, server_reserved), from_ = server)))
+                agreed_algorithms = []
+                for algolist_client in  client_lists:
+                        for algolist_server in server_lists:
+                                agreed_algorithms.append(iterate_protocol(algorithm_client, server_list[i]))
+                  
+class ssh_server(process):
+        def setup(kex, server_host_key, encryption_ctos, encryption_stoc, mac_ctos, compression_ctos, conpression_stoc, languages_ctos, language_stoc, guess):
+                pass
+        
+        def run():
+                cookie = Keygen('random', 16)
+                client_list = (kex, server_host_key, encryption_ctos, encryption_stoc, mac_ctos, compression_ctos, conpression_stoc, languages_ctos, language_stoc)
+                send((SSH_MSG_KEXINIT, cookie, client_list, guess, 0), to = client)
+                
+               #To determine if a guess attempt should be sent. NOT IMPLEMENTED YET#
+               #if guess == True:
+                        #client_guess()        
+
+                await(some(received((SSH_MSG_KEXINIT, server_cookie, server_lists, server_guess, server_reserved), from_ = server)))
+                agreed_algorithms = []
+                for algolist_client in  client_lists:
+                        for algolist_server in server_lists:
+                                agreed_algorithms.append(iterate_protocol(algorithm_client, server_list[i]))                
+        
